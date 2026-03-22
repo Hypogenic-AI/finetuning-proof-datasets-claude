@@ -1,0 +1,20 @@
+\section{Introduction}
+\label{sec:intro}
+
+Can we trust benchmark scores? When a model achieves 90\% accuracy on a popular benchmark, how much of that reflects genuine capability versus memorization of leaked training data? This question grows more urgent as LLMs train on web-scale corpora that inevitably include public benchmark data~\citep{zhang2024gsm1k, white2024livebench}.
+
+\para{The contamination problem.} Data contamination---where benchmark instances appear in training data---is well-documented~\citep{zhang2024gsm1k, zhu2024contamination_survey}. Models fine-tuned on GSM8K training data can memorize specific test instances and score well without genuine mathematical reasoning~\citep{mirzadeh2025gsmsymbolic}. This undermines benchmarks' core purpose: measuring real capability.
+
+\para{The gap.} Prior work has documented contamination in individual benchmarks~\citep{zhang2024gsm1k} and proposed dynamic benchmarks as solutions~\citep{white2024livebench, zhu2023dyval}. However, no study has \emph{systematically measured finetuning resistance across multiple benchmarks using a controlled experimental setup}. Most evidence is observational---performance gaps between model families---rather than experimental.
+
+\para{Our approach.} We conduct the first controlled cross-benchmark finetuning experiment. We fine-tune a single base model (\qwen) separately on four benchmarks' training data and evaluate each resulting model on all seven benchmarks, including shadow variants (\gsmsym for \gsmk, \mmlupro for \mmlu). The gap between a benchmark's self-improvement and its shadow-benchmark improvement directly quantifies finetuning inflation: the portion of gain attributable to memorization rather than genuine capability. \Figref{fig:heatmap} provides an overview of our cross-benchmark evaluation.
+
+\para{Key results.} We find that benchmarks span a wide spectrum of finetuning resistance. \gpqa and \mmlupro are effectively immune (near-zero gains under all fine-tuning conditions), while \gsmk is highly vulnerable (+0.557 self-gain vs.\ +0.370 shadow gain, yielding 34\% inflation). An unexpected finding is that fine-tuning on \emph{any} benchmark dramatically improves \gsmk scores (+0.16 to +0.36), suggesting \gsmk is especially unreliable for fine-tuned models.
+
+We make the following contributions:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item We propose a quantitative framework for measuring finetuning resistance using shadow benchmarks and cross-benchmark evaluation.
+    \item We conduct the first systematic cross-benchmark finetuning experiment, producing a resistance ranking across seven benchmarks.
+    \item We identify three design principles---expert-knowledge gaps, increased answer choices, and template randomization---that maximize benchmark robustness to fine-tuning.
+    \item We discover that general instruction tuning unlocks latent math capability in \qwen, raising questions about what \gsmk actually measures.
+\end{itemize}

@@ -1,0 +1,75 @@
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Overview}
+
+Our experimental design isolates finetuning inflation by comparing each benchmark's self-improvement against shadow-benchmark and cross-benchmark improvement. For each benchmark $B_i$ with available training data, we: (1)~establish baseline accuracy on all benchmarks, (2)~fine-tune the model on $B_i$'s training set, and (3)~evaluate the fine-tuned model on all benchmarks including shadow variants. The gap between self-benchmark gain and shadow/cross-benchmark gain quantifies the memorization component of the improvement.
+
+\subsection{Benchmarks}
+\label{sec:benchmarks}
+
+We evaluate seven benchmarks spanning four task categories, summarized in \tabref{tab:datasets}.
+
+\begin{table}[t]
+\centering
+\caption{Benchmarks used in our study. ``Shadow'' indicates a variant benchmark used to measure finetuning inflation. Evaluation sizes reflect random subsets (seed=42) used for computational efficiency, except \gpqa which uses its full set.}
+\label{tab:datasets}
+\vspace{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrclc@{}}
+\toprule
+\textsc{Benchmark} & \textsc{Task} & \textsc{Train Size} & \textsc{Eval Size} & \textsc{Choices} & \textsc{Shadow} & \textsc{Chance} \\
+\midrule
+\gsmk       & Grade school math     & 7{,}473  & 300 & Open & \gsmsym   & $\sim$0\%  \\
+\gsmsym     & Randomized math       & ---      & 300 & Open & ---       & $\sim$0\%  \\
+\mmlu       & Knowledge QA          & 99{,}842 & 500 & 4    & \mmlupro  & 25\%       \\
+\mmlupro    & Harder knowledge QA   & ---      & 500 & 10   & ---       & 10\%       \\
+\wino       & Commonsense reasoning & 40{,}398 & 300 & 2    & ---       & 50\%       \\
+\arc        & Science reasoning     & 1{,}119  & 500 & 4    & ---       & 25\%       \\
+\gpqa       & PhD-level expert QA   & ---      & 448 & 4    & ---       & 25\%       \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+We selected these benchmarks to cover a range of task types and difficulty levels. \gsmk and \gsmsym form a shadow pair: both test grade-school math, but \gsmsym randomizes numeric values in templates to resist memorization~\citep{mirzadeh2025gsmsymbolic}. \mmlu and \mmlupro form another pair: \mmlupro uses 10 answer choices and harder questions~\citep{tiglab2024mmlupro}. \gpqa has no training data and tests PhD-level expertise~\citep{rein2023gpqa}, making it a natural control.
+
+\subsection{Model and Fine-tuning}
+\label{sec:finetuning}
+
+We use \qwen as our base model, chosen for computational efficiency (each fine-tuning run completes in $\sim$15 minutes) while maintaining meaningful baseline performance across all benchmarks. We apply \lora~\citep{hu2022lora} to all attention and MLP projection layers with rank $r=16$ and $\alpha=32$.
+
+\para{Training details.} We train for 2 epochs with a cosine learning rate schedule, initial learning rate $2 \times 10^{-4}$, effective batch size 16 (batch size 8 with gradient accumulation of 2), and a maximum of 3{,}000 training samples per benchmark. Sequences are truncated to 768 tokens. We use bf16 precision throughout. Each fine-tuning run starts from the original base model (no cumulative adaptation). We train four models in total, one for each benchmark with available training data: \gsmk, \mmlu, \wino, and \arc.
+
+\subsection{Evaluation Protocol}
+\label{sec:eval}
+
+We evaluate each of the five models (one baseline plus four fine-tuned) on all seven benchmarks. We use greedy decoding (temperature~$=0$) and evaluate on fixed random subsets (seed=42) for reproducibility: 300 samples for \gsmk, \gsmsym, and \wino; 500 for \mmlu, \mmlupro, and \arc; and the full 448 questions for \gpqa.
+
+For multiple-choice benchmarks, we extract the model's answer letter from its response. For math benchmarks (\gsmk, \gsmsym), we extract the final numeric answer following the ``\#\#\#\#'' delimiter.
+
+\subsection{Metrics}
+\label{sec:metrics}
+
+We define four metrics to quantify finetuning resistance:
+
+\para{Finetuning Gain.} The accuracy improvement on benchmark $B_i$ after fine-tuning on $B_i$'s training data:
+\begin{equation}
+    \ftgain(B_i) = \text{Acc}_{\text{FT on } B_i}(B_i) - \text{Acc}_{\text{base}}(B_i)
+\end{equation}
+
+\para{Shadow Gain.} The accuracy improvement on a shadow benchmark $B_i'$ after fine-tuning on $B_i$:
+\begin{equation}
+    \shadowgain(B_i) = \text{Acc}_{\text{FT on } B_i}(B_i') - \text{Acc}_{\text{base}}(B_i')
+\end{equation}
+
+\para{Finetuning Inflation.} The portion of the gain attributable to memorization:
+\begin{equation}
+    \inflation(B_i) = \ftgain(B_i) - \shadowgain(B_i)
+\end{equation}
+
+\para{Resistance Score.} A normalized measure of resistance to finetuning inflation, clamped to $[0, 1]$:
+\begin{equation}
+    \resistance(B_i) = \max\!\left(0,\; 1 - \frac{\inflation(B_i)}{\ftgain(B_i)}\right)
+\label{eq:resistance}
+\end{equation}
+A score near 1.0 indicates that all gains are genuine (finetuning-proof), while a score near 0.0 indicates that gains are driven by memorization. For benchmarks without shadow variants (\wino, \arc), we use the average cross-benchmark gain as a proxy for $\shadowgain$.

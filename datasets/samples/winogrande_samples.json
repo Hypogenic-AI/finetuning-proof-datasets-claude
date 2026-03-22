@@ -1,0 +1,30 @@
+{
+  "sentence": [
+    "Sarah was a much better surgeon than Maria so _ always got the easier cases.",
+    "Sarah was a much better surgeon than Maria so _ always got the harder cases.",
+    "They were worried the wine would ruin the bed and the blanket, but the _ was't ruined.",
+    "Terry tried to bake the eggplant in the toaster oven but the _ was too big.",
+    "At night, Jeffrey always stays up later than Hunter to watch TV because _ wakes up late."
+  ],
+  "option1": [
+    "Sarah",
+    "Sarah",
+    "blanket",
+    "eggplant",
+    "Jeffrey"
+  ],
+  "option2": [
+    "Maria",
+    "Maria",
+    "bed",
+    "toaster",
+    "Hunter"
+  ],
+  "answer": [
+    "2",
+    "1",
+    "2",
+    "1",
+    "1"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "stages": {
+    "resource_finder": {
+      "success": true,
+      "completion_marker": "/workspaces/finetuning-proof-datasets-claude/.resource_finder_complete",
+      "outputs": {
+        "literature_review": "/workspaces/finetuning-proof-datasets-claude/literature_review.md",
+        "resources_catalog": "/workspaces/finetuning-proof-datasets-claude/resources.md",
+        "papers_dir": "/workspaces/finetuning-proof-datasets-claude/papers",
+        "datasets_dir": "/workspaces/finetuning-proof-datasets-claude/datasets",
+        "code_dir": "/workspaces/finetuning-proof-datasets-claude/code"
+      },
+      "log_file": "/workspaces/finetuning-proof-datasets-claude/logs/resource_finder_claude.log",
+      "transcript_file": "/workspaces/finetuning-proof-datasets-claude/logs/resource_finder_claude_transcript.jsonl",
+      "elapsed_time": 1503.2443385124207
+    },
+    "experiment_runner": {
+      "success": true,
+      "return_code": 0,
+      "elapsed_time": 7056.028965473175,
+      "log_file": "/workspaces/finetuning-proof-datasets-claude/logs/execution_claude.log",
+      "transcript_file": "/workspaces/finetuning-proof-datasets-claude/logs/execution_claude_transcript.jsonl"
+    }
+  },
+  "work_dir": "/workspaces/finetuning-proof-datasets-claude"
+}

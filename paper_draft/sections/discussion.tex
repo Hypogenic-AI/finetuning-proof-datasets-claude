@@ -1,0 +1,47 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Why Does General Fine-tuning Unlock Math?}
+\label{sec:math_unlock}
+
+Our most surprising finding is that fine-tuning on \emph{any} benchmark---including commonsense reasoning (\wino, +0.163) and science QA (\arc, +0.357)---dramatically improves \gsmk performance. This suggests that \qwen's low baseline on \gsmk (0.160) does not reflect a lack of mathematical knowledge but rather poor instruction-following in the zero-shot setting. Fine-tuning teaches the model to follow the expected output format (the ``\#\#\#\#'' numeric answer delimiter), unlocking latent capability.
+
+This has practical implications: \gsmk scores should be interpreted with extreme caution for any model that has undergone instruction tuning. A model's \gsmk improvement after fine-tuning may reflect format compliance rather than mathematical capability, making \gsmk unreliable as a standalone math benchmark.
+
+\subsection{Why Is WinoGrande So Vulnerable?}
+\label{sec:wino_vuln}
+
+\wino's low resistance score (0.227) was unexpected given its AFLITE bias reduction. We hypothesize two contributing factors. First, \wino is a binary-choice task, so the model only needs to learn a preference for one of two completions---a simpler pattern than selecting among 4--10 options. Second, AFLITE removes \emph{statistical} shortcuts detectable by a linear classifier on the static dataset, but fine-tuning with gradient-based optimization can learn more complex, nonlinear patterns that AFLITE does not address. The negative effects of \wino fine-tuning on \mmlu ($-0.032$) and \mmlupro ($-0.012$) further confirm that the gains are task-specific rather than reflecting general capability improvement.
+
+\subsection{What Makes a Benchmark Resistant?}
+\label{sec:design_principles}
+
+Our results suggest three complementary design principles for finetuning-resistant benchmarks:
+
+\para{Expert-knowledge gaps.} \gpqa's near-total resistance stems from questions that require years of PhD-level domain expertise~\citep{rein2023gpqa}. This knowledge cannot be acquired through fine-tuning on a few thousand examples from other domains. The structural expertise gap is the strongest form of resistance we observe.
+
+\para{Increased difficulty and answer space.} \mmlupro's 10-choice format (versus \mmlu's 4 choices) reduces the probability of correct random guessing from 25\% to 10\% and requires finer-grained discrimination. Combined with harder questions, this makes memorization-based shortcuts less effective.
+
+\para{Template randomization.} \gsmsym's randomized numeric values reduce but do not eliminate memorization---the template structure itself can still be learned. This strategy is weaker than expert-knowledge gaps but still provides meaningful protection (34\% inflation reduction compared to raw \gsmk).
+
+An ideal finetuning-resistant benchmark would combine all three: expert-level questions, many answer choices, and instance randomization.
+
+\subsection{Negative Inflation in MMLU and ARC}
+\label{sec:negative_inflation}
+
+Both \mmlu and \arc show negative inflation: fine-tuning on their training data improves cross-benchmark performance more than self-performance. For \arc, this suggests that its science reasoning training data teaches genuinely transferable reasoning skills. For \mmlu, the near-zero self-gain likely reflects the mismatch between our small training sample (3{,}000 from 99{,}842 available) and the benchmark's vast coverage across 57 subjects.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+\para{Single model.} We test only \qwen. Larger or architecturally different models may show different resistance patterns. \citet{zhang2024gsm1k} found that frontier models show no contamination on GSM1K, suggesting model capability is a key moderating variable.
+
+\para{LoRA versus full fine-tuning.} \lora adapts approximately 1\% of parameters. Full fine-tuning might produce stronger memorization effects, potentially lowering resistance scores across all benchmarks.
+
+\para{Sample sizes.} Our evaluation subsets (300--500 samples) limit statistical power for detecting small effects. \mmlu and \arc's non-significant self-gains might become significant with full evaluation sets.
+
+\para{No direct \gpqa fine-tuning.} \gpqa has only 448 questions with no train/test split, so we could not directly fine-tune on it. Its resistance was measured only indirectly through cross-benchmark evaluation.
+
+\para{Format confound.} The large \gsmk gain may partly reflect improved format compliance (producing answers in the ``\#\#\#\#'' format) rather than pure memorization. A more careful analysis would separate format compliance from answer accuracy.
+
+\para{Training data heterogeneity.} The available training data varies substantially across benchmarks: \mmlu has 99{,}842 examples while \arc has only 1{,}119. Although we cap at 3{,}000 samples, the composition and coverage of these samples differ.

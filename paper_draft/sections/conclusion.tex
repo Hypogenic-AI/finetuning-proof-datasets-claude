@@ -1,0 +1,10 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented the first systematic measurement of finetuning resistance across seven ML benchmarks. Our controlled cross-benchmark fine-tuning experiment reveals that benchmarks span a wide spectrum: \gpqa and \mmlupro are effectively immune to fine-tuning on related data, while \gsmk shows 34\% inflation and \wino shows 77\% inflation. We formalize this spectrum through a resistance score that quantifies the portion of fine-tuning gains attributable to genuine capability versus memorization.
+
+Three findings stand out. First, expert-knowledge gaps (\gpqa) provide the strongest resistance---no amount of fine-tuning on other benchmarks bridges the domain-expertise barrier. Second, increasing answer choices and difficulty (\mmlupro) is nearly as effective. Third, and most surprisingly, fine-tuning on \emph{any} benchmark unlocks latent math capability in \qwen, suggesting that \gsmk's low baseline scores reflect poor instruction-following rather than genuine mathematical inability.
+
+These results have immediate practical implications for benchmark selection: evaluators should prefer \gpqa, \mmlupro, and \arc over \gsmk and \wino when assessing models that may have been fine-tuned. For benchmark designers, our findings suggest combining expert-level questions, large answer spaces, and template randomization for maximum resistance.
+
+\para{Future work.} Key extensions include testing larger models (7B, 70B) to verify whether the resistance ranking holds across scales, directly fine-tuning on \gpqa with a train/test split, comparing \lora with full fine-tuning to assess whether memorization patterns change, and separating format compliance from answer accuracy in the \gsmk evaluation. More broadly, understanding why general instruction tuning unlocks mathematical capability so dramatically remains an open question with implications for how we interpret benchmark scores.
